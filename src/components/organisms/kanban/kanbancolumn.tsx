@@ -75,7 +75,7 @@ export function KanbanColumn({
                   <div className="text-xs opacity-75">Release to add task</div>
                 </div>
               ) : (
-                "Drop tasks here"
+                "Solte aqui"
               )}
             </div>
           )}

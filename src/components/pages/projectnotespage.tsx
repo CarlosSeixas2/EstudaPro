@@ -246,11 +246,11 @@ export default function ProjectNotesPage({
                     <CardTitle className="text-3xl font-bold">
                       {selectedNote.title}
                     </CardTitle>
-                    <CardDescription className="mt-2">
-                      Criado em: {selectedNote.createdAt.toLocaleDateString()}
-                    </CardDescription>
                   </div>
                   <div className="flex items-center gap-1">
+                    <p className="text-xs text-muted-foreground">
+                      Criado em: {selectedNote.createdAt.toLocaleDateString()}
+                    </p>
                     <Button
                       variant="ghost"
                       size="icon"

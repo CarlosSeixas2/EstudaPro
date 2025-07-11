@@ -55,11 +55,11 @@
   ],
   "notes": [
     {
-      "id": "9859",
-      "title": "teste",
-      "content": "a",
+      "title": "React",
+      "content": "Projeto de Gerenciamento de Estudos",
       "projectId": "1",
-      "createdAt": "2025-07-11T20:07:04.729Z"
+      "createdAt": "2025-07-11T21:05:43.511Z",
+      "id": "9859"
     },
     {
       "id": "80e3",
@@ -67,6 +67,13 @@
       "content": "Montar Design para o <font color=\"#eab308\">Sintese Play</font>",
       "projectId": "2",
       "createdAt": "2025-07-11T20:09:10.923Z"
+    },
+    {
+      "title": "Sintase Lab",
+      "content": "...<div><br></div>",
+      "projectId": "2",
+      "createdAt": "2025-07-11T21:09:20.498Z",
+      "id": "c3ed"
     }
   ],
   "tasks": [
@@ -74,7 +81,7 @@
       "id": "1",
       "title": "Design landing page mockup",
       "description": "Create wireframes and high-fidelity mockups for the new landing page",
-      "status": "in-progress",
+      "status": "todo",
       "tag": "Design",
       "createdAt": "2024-01-15T00:00:00.000Z",
       "projectId": "1"
@@ -83,7 +90,7 @@
       "id": "2",
       "title": "Fix authentication bug",
       "description": "Users are unable to log in with Google OAuth",
-      "status": "Feito",
+      "status": "in-progress",
       "tag": "Bug",
       "createdAt": "2024-01-14T00:00:00.000Z",
       "projectId": "1"
@@ -92,7 +99,7 @@
       "id": "3",
       "title": "Implement dark mode",
       "description": "Add theme toggle functionality across the application",
-      "status": "todo",
+      "status": "Feito",
       "tag": "Feature",
       "createdAt": "2024-01-13T00:00:00.000Z",
       "projectId": "1"

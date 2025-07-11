@@ -194,15 +194,22 @@ export default function KanbanBoard() {
     if (!over) return;
 
     const taskId = active.id as string;
-    const newStatus = over.id as TaskStatus;
+    const newStatus = over.id as string;
 
+    // Valida se o status é válido
+    const validStatuses: TaskStatus[] = ["todo", "in-progress", "Feito"];
+    if (!validStatuses.includes(newStatus as TaskStatus)) {
+      return; // Ignora se não for um status válido
+    }
+
+    const validatedStatus = newStatus as TaskStatus;
     const originalTask = tasks.find((task) => task.id === taskId);
-    if (!originalTask || originalTask.status === newStatus) return;
+    if (!originalTask || originalTask.status === validatedStatus) return;
 
     // Atualiza visualmente
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
-        task.id === taskId ? { ...task, status: newStatus } : task
+        task.id === taskId ? { ...task, status: validatedStatus } : task
       )
     );
 
@@ -210,7 +217,7 @@ export default function KanbanBoard() {
     fetch(`http://localhost:3001/tasks/${taskId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ status: validatedStatus }),
     }).catch(() => {
       // Reverte visual se a atualização falhar
       setTasks((currentTasks) =>
