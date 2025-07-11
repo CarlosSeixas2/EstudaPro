@@ -120,3 +120,16 @@
     transition-duration: 150ms;
   }
 }
+
+/* Adicionado para corrigir a visualização de listas no editor */
+@layer base {
+  .prose ul {
+    @apply list-disc pl-5;
+  }
+  .prose ol {
+    @apply list-decimal pl-5;
+  }
+  .prose li {
+    @apply my-2;
+  }
+}

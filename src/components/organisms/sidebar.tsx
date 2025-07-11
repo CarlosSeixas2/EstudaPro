@@ -44,7 +44,7 @@ const data = {
 };
 
 export default function AppSidebar() {
-  const location = useLocation(); // 2. Usando o hook useLocation
+  const location = useLocation();
 
   return (
     <Sidebar collapsible="icon">
@@ -52,7 +52,6 @@ export default function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              {/* O link para a home pode continuar como <a> se for para recarregar a página intencionalmente */}
               <Link to="/" className="flex items-center gap-2">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Book className="size-4" />
@@ -80,10 +79,8 @@ export default function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={item.label}
-                    // 5. Lógica isActive atualizada
                     isActive={location.pathname === item.path}
                   >
-                    {/* 3. Substituído <a> por <Link> e href por to */}
                     <Link to={item.path}>
                       <item.icon />
                       <span>{item.label}</span>

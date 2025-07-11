@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DndContext,
   type DragEndEvent,
@@ -8,7 +8,13 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Plus, PanelLeftClose, PanelLeft, FolderPlus } from "lucide-react";
+import {
+  Plus,
+  PanelLeftClose,
+  PanelLeft,
+  FolderPlus,
+  Loader2,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +40,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KanbanColumn } from "@/components/organisms/kanban/kanbancolumn";
 import { ProjectSelector } from "@/components/organisms/kanban/projectselector";
 
-export type TaskStatus = "todo" | "in-progress" | "done";
-
+// Tipos permanecem os mesmos
+export type TaskStatus = "todo" | "in-progress" | "Feito";
 export type TaskTag =
   | "Design"
   | "Bug"
@@ -49,7 +55,7 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   tag?: TaskTag;
-  createdAt: Date;
+  createdAt: Date; // Mantemos como Date para facilitar a manipulação no frontend
   projectId: string;
 }
 
@@ -58,83 +64,18 @@ export interface Project {
   name: string;
   description?: string;
   color: string;
-  createdAt: Date;
+  createdAt: Date; // Mantemos como Date
 }
 
-const initialProjects: Project[] = [
-  {
-    id: "1",
-    name: "Website Redesign",
-    description: "Complete redesign of the company website",
-    color: "bg-blue-500",
-    createdAt: new Date("2024-01-10"),
-  },
-  {
-    id: "2",
-    name: "Mobile App",
-    description: "Development of the mobile application",
-    color: "bg-green-500",
-    createdAt: new Date("2024-01-08"),
-  },
-];
-
-const initialTasks: Task[] = [
-  {
-    id: "1",
-    title: "Design landing page mockup",
-    description:
-      "Create wireframes and high-fidelity mockups for the new landing page",
-    status: "todo",
-    tag: "Design",
-    createdAt: new Date("2024-01-15"),
-    projectId: "1",
-  },
-  {
-    id: "2",
-    title: "Fix authentication bug",
-    description: "Users are unable to log in with Google OAuth",
-    status: "in-progress",
-    tag: "Bug",
-    createdAt: new Date("2024-01-14"),
-    projectId: "1",
-  },
-  {
-    id: "3",
-    title: "Implement dark mode",
-    description: "Add theme toggle functionality across the application",
-    status: "done",
-    tag: "Feature",
-    createdAt: new Date("2024-01-13"),
-    projectId: "1",
-  },
-  {
-    id: "4",
-    title: "Setup React Native project",
-    description: "Initialize the mobile app project structure",
-    status: "todo",
-    tag: "Feature",
-    createdAt: new Date("2024-01-12"),
-    projectId: "2",
-  },
-  {
-    id: "5",
-    title: "Design mobile UI components",
-    description: "Create reusable UI components for the mobile app",
-    status: "in-progress",
-    tag: "Design",
-    createdAt: new Date("2024-01-11"),
-    projectId: "2",
-  },
-];
-
+// Constantes permanecem as mesmas
 const columns = [
-  { id: "todo", title: "To Do", status: "todo" as TaskStatus },
+  { id: "todo", title: "Pendente", status: "todo" as TaskStatus },
   {
     id: "in-progress",
-    title: "In Progress",
+    title: "Em andamento",
     status: "in-progress" as TaskStatus,
   },
-  { id: "done", title: "Done", status: "done" as TaskStatus },
+  { id: "Feito", title: "Feito", status: "Feito" as TaskStatus },
 ];
 
 const tagColors: Record<TaskTag, string> = {
@@ -160,15 +101,17 @@ const projectColors = [
 ];
 
 export default function KanbanBoard() {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [currentProjectId, setCurrentProjectId] = useState<string>(
-    initialProjects[0].id
-  );
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] =
     useState(false);
+
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -183,12 +126,50 @@ export default function KanbanBoard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
+
+  // busca os projetos e tarefas do `json-server`.
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projectsResponse, tasksResponse] = await Promise.all([
+          fetch("http://localhost:3001/projects"),
+          fetch("http://localhost:3001/tasks"),
+        ]);
+
+        if (!projectsResponse.ok || !tasksResponse.ok) {
+          throw new Error("Falha ao buscar dados do servidor.");
+        }
+
+        // Os dados de `createdAt` vêm como strings, então os convertemos para objetos Date.
+        const projectsData = (await projectsResponse.json()).map((p: any) => ({
+          ...p,
+          createdAt: new Date(p.createdAt),
+        }));
+        const tasksData = (await tasksResponse.json()).map((t: any) => ({
+          ...t,
+          createdAt: new Date(t.createdAt),
+        }));
+
+        setProjects(projectsData);
+        setTasks(tasksData);
+
+        if (projectsData.length > 0) {
+          setCurrentProjectId(projectsData[0].id);
+        }
+      } catch (err: any) {
+        setError(
+          "Não foi possível conectar ao servidor. Verifique se o `json-server` está rodando."
+        );
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []); // O array vazio [] garante que isso rode apenas uma vez.
 
   const currentProject = projects.find((p) => p.id === currentProjectId);
   const currentProjectTasks = tasks.filter(
@@ -200,96 +181,152 @@ export default function KanbanBoard() {
     setActiveTask(task || null);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // --- EXPLICAÇÃO: ATUALIZANDO TAREFA (handleDragEnd) ---
+  // Quando uma tarefa é movida para outra coluna, esta função é chamada.
+  // Ela envia uma requisição `PATCH` para o servidor para atualizar apenas o `status` da tarefa.
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);
 
-    // Se não há zona de drop válida, não faz nada (mantém o card na posição original)
     if (!over) return;
 
     const taskId = active.id as string;
     const newStatus = over.id as TaskStatus;
+    const taskToUpdate = tasks.find((task) => task.id === taskId);
 
-    // Verifica se o destino é um status válido
-    const validStatuses: TaskStatus[] = ["todo", "in-progress", "done"];
-    if (!validStatuses.includes(newStatus)) {
-      return; // Não faz nada se não for um status válido
-    }
+    if (!taskToUpdate || taskToUpdate.status === newStatus) return;
 
-    // Só atualiza se o status realmente mudou
-    setTasks((tasks) =>
-      tasks.map((task) =>
+    // Atualização otimista: atualiza a UI imediatamente para uma melhor experiência do usuário.
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
         task.id === taskId ? { ...task, status: newStatus } : task
       )
     );
+
+    try {
+      const response = await fetch(`http://localhost:3001/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok)
+        throw new Error("Falha ao atualizar a tarefa no servidor.");
+    } catch (err) {
+      console.error(err);
+      // Se a requisição falhar, reverte a UI para o estado anterior.
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId ? { ...task, status: taskToUpdate.status } : task
+        )
+      );
+    }
   };
 
-  const handleCreateTask = () => {
-    if (!newTask.title.trim()) return;
+  // --- EXPLICAÇÃO: CRIANDO NOVA TAREFA (handleCreateTask) ---
+  // Envia uma requisição `POST` para `http://localhost:3001/tasks` com os dados da nova tarefa.
+  // O `json-server` automaticamente adiciona a tarefa ao `db.json`.
+  const handleCreateTask = async () => {
+    if (!newTask.title.trim() || !currentProjectId) return;
 
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask.title,
-      description: newTask.description || undefined,
-      status: newTask.status,
-      tag: newTask.tag || undefined,
-      createdAt: new Date(),
+    const taskData = {
+      ...newTask,
       projectId: currentProjectId,
+      createdAt: new Date().toISOString(),
     };
 
-    setTasks((prev) => [...prev, task]);
-    setNewTask({
-      title: "",
-      description: "",
-      status: "todo",
-      tag: "",
-    });
-    setIsCreateDialogOpen(false);
+    try {
+      const response = await fetch("http://localhost:3001/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskData),
+      });
+
+      if (!response.ok) throw new Error("Falha ao criar a tarefa.");
+
+      const createdTask = await response.json();
+      setTasks((prev) => [
+        ...prev,
+        { ...createdTask, createdAt: new Date(createdTask.createdAt) },
+      ]);
+      setNewTask({ title: "", description: "", status: "todo", tag: "" });
+      setIsCreateDialogOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleCreateProject = () => {
+  // --- EXPLICAÇÃO: CRIANDO NOVO PROJETO (handleCreateProject) ---
+  // Similar à criação de tarefas, mas envia a requisição para o endpoint `/projects`.
+  const handleCreateProject = async () => {
     if (!newProject.name.trim()) return;
 
-    const project: Project = {
-      id: Date.now().toString(),
-      name: newProject.name,
-      description: newProject.description || undefined,
-      color: newProject.color,
-      createdAt: new Date(),
+    const projectData = {
+      ...newProject,
+      createdAt: new Date().toISOString(),
     };
 
-    setProjects((prev) => [...prev, project]);
-    setCurrentProjectId(project.id);
-    setNewProject({
-      name: "",
-      description: "",
-      color: projectColors[0],
-    });
-    setIsCreateProjectDialogOpen(false);
+    try {
+      const response = await fetch("http://localhost:3001/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(projectData),
+      });
+
+      if (!response.ok) throw new Error("Falha ao criar o projeto.");
+
+      const createdProject = await response.json();
+      setProjects((prev) => [
+        ...prev,
+        { ...createdProject, createdAt: new Date(createdProject.createdAt) },
+      ]);
+      setCurrentProjectId(createdProject.id);
+      setNewProject({ name: "", description: "", color: projectColors[0] });
+      setIsCreateProjectDialogOpen(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const getTasksByStatus = (status: TaskStatus) => {
     return currentProjectTasks.filter((task) => task.status === status);
   };
 
+  // --- EXPLICAÇÃO: TRATAMENTO DE CARREGAMENTO E ERRO ---
+  // O JSX agora verifica os estados `loading` e `error` para exibir mensagens apropriadas.
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="ml-4">A carregar o seu quadro Kanban...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center text-red-500">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  // O resto do JSX permanece quase o mesmo...
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="border-b bg-card">
         <div className="mx-auto px-4 py-4 bg-background">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  Project Board
-                </h1>
+                <h1 className="text-2xl font-bold text-foreground">Tarefas</h1>
                 <p className="text-sm text-muted-foreground">
-                  Manage your projects and tasks efficiently
+                  Gerencie seus projetos e tarefas com eficiência
                 </p>
               </div>
               <ProjectSelector
                 projects={projects}
-                currentProjectId={currentProjectId}
+                currentProjectId={currentProjectId || ""}
                 onProjectChange={setCurrentProjectId}
               />
             </div>
@@ -439,11 +476,11 @@ export default function KanbanBoard() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="todo">To Do</SelectItem>
+                          <SelectItem value="todo">Pendente</SelectItem>
                           <SelectItem value="in-progress">
-                            In Progress
+                            Em andamento
                           </SelectItem>
-                          <SelectItem value="done">Done</SelectItem>
+                          <SelectItem value="Feito">Feito</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -488,10 +525,8 @@ export default function KanbanBoard() {
         </div>
       </header>
 
-      {/* Kanban Board with Sidebar */}
       <main className="mx-auto px-4 py-6">
         <div className="flex gap-6">
-          {/* Sidebar */}
           <div
             className={`transition-all duration-300 ${
               isSidebarOpen ? "w-80" : "w-0 overflow-hidden"
@@ -512,13 +547,12 @@ export default function KanbanBoard() {
                 )}
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Task Statistics */}
                 <div>
-                  <h3 className="font-medium mb-3">Task Statistics</h3>
+                  <h3 className="font-medium mb-3">Estatísticas</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Total Tasks
+                        Total de Tarefas
                       </span>
                       <Badge variant="outline">
                         {currentProjectTasks.length}
@@ -526,7 +560,7 @@ export default function KanbanBoard() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        To Do
+                        Pendente
                       </span>
                       <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
                         {getTasksByStatus("todo").length}
@@ -534,7 +568,7 @@ export default function KanbanBoard() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        In Progress
+                        Em andamento
                       </span>
                       <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
                         {getTasksByStatus("in-progress").length}
@@ -542,25 +576,24 @@ export default function KanbanBoard() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
-                        Done
+                        Feito
                       </span>
                       <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                        {getTasksByStatus("done").length}
+                        {getTasksByStatus("Feito").length}
                       </Badge>
                     </div>
                   </div>
                 </div>
 
-                {/* Progress Bar */}
                 <div>
-                  <h3 className="font-medium mb-3">Progress</h3>
+                  <h3 className="font-medium mb-3">Progresso</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Completion</span>
+                      <span>Concluido</span>
                       <span>
                         {currentProjectTasks.length > 0
                           ? Math.round(
-                              (getTasksByStatus("done").length /
+                              (getTasksByStatus("Feito").length /
                                 currentProjectTasks.length) *
                                 100
                             )
@@ -574,7 +607,7 @@ export default function KanbanBoard() {
                         style={{
                           width: `${
                             currentProjectTasks.length > 0
-                              ? (getTasksByStatus("done").length /
+                              ? (getTasksByStatus("Feito").length /
                                   currentProjectTasks.length) *
                                 100
                               : 0
@@ -585,7 +618,6 @@ export default function KanbanBoard() {
                   </div>
                 </div>
 
-                {/* Tag Distribution */}
                 <div>
                   <h3 className="font-medium mb-3">Tags</h3>
                   <div className="space-y-2">
@@ -613,9 +645,8 @@ export default function KanbanBoard() {
                   </div>
                 </div>
 
-                {/* Recent Activity */}
                 <div>
-                  <h3 className="font-medium mb-3">Recent Tasks</h3>
+                  <h3 className="font-medium mb-3">Recentes</h3>
                   <div className="space-y-2">
                     {currentProjectTasks
                       .sort(
@@ -637,45 +668,9 @@ export default function KanbanBoard() {
                       ))}
                   </div>
                 </div>
-
-                {/* All Projects */}
-                <div>
-                  <h3 className="font-medium mb-3">All Projects</h3>
-                  <div className="space-y-2">
-                    {projects.map((project) => (
-                      <button
-                        key={project.id}
-                        onClick={() => setCurrentProjectId(project.id)}
-                        className={`w-full text-left p-2 rounded-md transition-colors ${
-                          project.id === currentProjectId
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-2 h-2 rounded-full ${project.color}`}
-                          />
-                          <span className="text-sm font-medium truncate">
-                            {project.name}
-                          </span>
-                        </div>
-                        <div className="text-xs text-muted-foreground ml-4">
-                          {
-                            tasks.filter((t) => t.projectId === project.id)
-                              .length
-                          }{" "}
-                          tasks
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Main Kanban Board */}
           <div className="flex-1">
             <DndContext
               sensors={sensors}

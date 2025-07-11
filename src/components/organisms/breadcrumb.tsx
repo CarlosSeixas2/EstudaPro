@@ -8,8 +8,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
+import { useBreadcrumb } from "@/contexts/breadcrumbcontext";
 
-// Mapa de traduções para os nomes das rotas
 const breadcrumbNameMap: { [key: string]: string } = {
   schedule: "Cronograma",
   tasks: "Tarefas",
@@ -20,6 +20,7 @@ const breadcrumbNameMap: { [key: string]: string } = {
 
 export default function AppBreadcrumb() {
   const location = useLocation();
+  const { projectCrumb } = useBreadcrumb();
   const pathnames = location.pathname.split("/").filter((x) => x);
 
   return (
@@ -35,6 +36,20 @@ export default function AppBreadcrumb() {
           const name =
             breadcrumbNameMap[value] ||
             value.charAt(0).toUpperCase() + value.slice(1);
+
+          if (isLast && value === "notes" && projectCrumb) {
+            return (
+              <React.Fragment key={to}>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href={to}>{name}</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{projectCrumb.name}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </React.Fragment>
+            );
+          }
 
           return (
             <React.Fragment key={to}>

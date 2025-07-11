@@ -7,41 +7,97 @@
     "tasksCompleted": 1,
     "focusMinutes": 75
   },
-  "tasks": [
+  "phrases": [
     {
-      "id": 1,
-      "title": "Revisar Fórmulas de Física Quântica",
-      "time": "14:00",
-      "subject": "Física"
+      "id": "1",
+      "text": "A disciplina é a ponte entre metas e realizações."
     },
     {
-      "id": 2,
-      "title": "Resolver lista de exercícios de Cálculo",
-      "time": "16:00",
-      "subject": "Cálculo"
+      "id": "2",
+      "text": "O sucesso é a soma de pequenos esforços repetidos dia após dia."
     },
     {
-      "id": 3,
-      "title": "Ler capítulo 5 de História Antiga",
-      "time": "19:30",
-      "subject": "História"
+      "id": "3",
+      "text": "Não espere por uma oportunidade, crie-a."
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "name": "Frontend Avançado",
+      "description": "Técnicas e padrões modernos no desenvolvimento frontend.",
+      "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800",
+      "createdAt": "2024-07-10T10:00:00.000Z"
+    },
+    {
+      "id": "2",
+      "name": "Design de UI/UX",
+      "description": "Princípios de design para interfaces intuitivas.",
+      "imageUrl": "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800",
+      "createdAt": "2024-07-11T11:00:00.000Z"
     }
   ],
   "notes": [
-    { "id": 1, "title": "Princípios da Termodinâmica", "subject": "Física" },
-    { "id": 2, "title": "Conceitos de Integrais Duplas", "subject": "Cálculo" },
     {
-      "id": 3,
-      "title": "Resumo sobre a Revolução Francesa",
-      "subject": "História"
+      "id": "9859",
+      "title": "teste",
+      "content": "a",
+      "projectId": "1",
+      "createdAt": "2025-07-11T20:07:04.729Z"
+    },
+    {
+      "id": "80e3",
+      "title": "Figma",
+      "content": "Montar Design para o <font color=\"#eab308\">Sintese Play</font>",
+      "projectId": "2",
+      "createdAt": "2025-07-11T20:09:10.923Z"
     }
   ],
-  "phrases": [
-    { "id": 1, "text": "A disciplina é a ponte entre metas e realizações." },
+  "tasks": [
     {
-      "id": 2,
-      "text": "O sucesso é a soma de pequenos esforços repetidos dia após dia."
+      "id": "1",
+      "title": "Design landing page mockup",
+      "description": "Create wireframes and high-fidelity mockups for the new landing page",
+      "status": "todo",
+      "tag": "Design",
+      "createdAt": "2024-01-15T00:00:00.000Z",
+      "projectId": "1"
     },
-    { "id": 3, "text": "Não espere por uma oportunidade, crie-a." }
+    {
+      "id": "2",
+      "title": "Fix authentication bug",
+      "description": "Users are unable to log in with Google OAuth",
+      "status": "in-progress",
+      "tag": "Bug",
+      "createdAt": "2024-01-14T00:00:00.000Z",
+      "projectId": "1"
+    },
+    {
+      "id": "3",
+      "title": "Implement dark mode",
+      "description": "Add theme toggle functionality across the application",
+      "status": "Feito",
+      "tag": "Feature",
+      "createdAt": "2024-01-13T00:00:00.000Z",
+      "projectId": "1"
+    },
+    {
+      "id": "4",
+      "title": "Setup React Native project",
+      "description": "Initialize the mobile app project structure",
+      "status": "todo",
+      "tag": "Feature",
+      "createdAt": "2024-01-12T00:00:00.000Z",
+      "projectId": "2"
+    },
+    {
+      "id": "5",
+      "title": "Design mobile UI components",
+      "description": "Create reusable UI components for the mobile app",
+      "status": "in-progress",
+      "tag": "Design",
+      "createdAt": "2024-01-11T00:00:00.000Z",
+      "projectId": "2"
+    }
   ]
 }

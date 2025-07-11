@@ -6,31 +6,12 @@ import {
   BookCheck,
   Target,
   NotebookText,
-  Pin,
   Loader2,
   AlertTriangle,
   Sparkles,
+  ListPlus,
 } from "lucide-react";
 
-//================================================================//
-//  TIP: Idealmente, cada um dos componentes abaixo estaria       //
-//  em seu próprio arquivo dentro de `src/components/atoms`,      //
-//  `molecules`, ou `organisms` para seguir o Atomic Design.      //
-//  Estão todos aqui para facilitar a visualização da página.     //
-//================================================================//
-
-// --- ATOM: Frase Motivacional ---
-const MotivationalPhrase = ({ phrase }: { phrase: string }) => (
-  <div className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-soft">
-    <div className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-      <Sparkles className="h-5 w-5" />
-    </div>
-    <h4 className="font-semibold text-card-foreground">Pílula de Motivação</h4>
-    <p className="mt-2 text-sm text-muted-foreground italic">"{phrase}"</p>
-  </div>
-);
-
-// --- ORGANISM: Resumo do Dia ---
 const DailySummary = ({ summary }: { summary: DashboardData["summary"] }) => {
   const progress =
     summary.tasksToday > 0
@@ -74,7 +55,9 @@ const DailySummary = ({ summary }: { summary: DashboardData["summary"] }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">+3</div>
+          <div className="text-2xl font-bold">{`+${
+            summary.notesCreated || 3
+          }`}</div>
           <p className="text-xs text-muted-foreground">Na última semana</p>
         </CardContent>
       </Card>
@@ -82,7 +65,6 @@ const DailySummary = ({ summary }: { summary: DashboardData["summary"] }) => {
   );
 };
 
-// --- ORGANISM: Lista de Itens (Tarefas ou Anotações) ---
 const ItemListCard = ({
   title,
   items,
@@ -91,62 +73,108 @@ const ItemListCard = ({
   type,
 }: {
   title: string;
-  items: DashboardData["tasks"] | DashboardData["notes"];
+  items: any[];
   icon: React.ElementType;
   emptyText: string;
-  type: "task" | "note";
-}) => (
-  <Card className="flex flex-col">
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2 text-base">
-        <Icon className="h-5 w-5" />
-        <span>{title}</span>
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="flex-1">
-      {items.length > 0 ? (
-        <ul className="space-y-4">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className="flex items-start gap-4 transition-colors hover:bg-muted/50 p-2 rounded-lg cursor-pointer"
-            >
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 font-bold text-primary">
-                {type === "task"
-                  ? (item as DashboardData["tasks"][0]).time.substring(0, 2)
-                  : (item as DashboardData["notes"][0]).subject.substring(0, 1)}
-              </div>
-              <div>
-                <p className="font-semibold">{item.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  {item.subject}{" "}
-                  {type === "task" &&
-                    `às ${(item as DashboardData["tasks"][0]).time}`}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-8">
-          <Icon className="h-8 w-8 mb-4" />
-          <p className="text-sm">{emptyText}</p>
-        </div>
-      )}
-    </CardContent>
-  </Card>
-);
+  type: "kanbantask" | "note";
+}) => {
+  const getIconText = (item: any) => {
+    if (type === "note") {
+      // Para anotações, usa a primeira letra do título.
+      return item.title?.substring(0, 1) || "?";
+    }
+    if (type === "kanbantask") {
+      // Para tarefas do Kanban, usa a primeira letra da tag, se existir.
+      return item.tag?.substring(0, 1) || "T";
+    }
+    return "";
+  };
 
-// --- INTERFACE DE DADOS ---
+  const getSecondaryText = (item: any) => {
+    if (type === "note") {
+      // Para anotações, mostra um trecho do conteúdo.
+      return item.content
+        ? `${item.content.substring(0, 40)}...`
+        : "Nenhum conteúdo";
+    }
+    if (type === "kanbantask") {
+      // Para tarefas do Kanban, mostra a data de criação.
+      return `Criado em: ${new Date(item.createdAt).toLocaleDateString()}`;
+    }
+    return "";
+  };
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Icon className="h-5 w-5" />
+          <span>{title}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1">
+        {items && items.length > 0 ? (
+          <ul className="space-y-4">
+            {items.map((item) => (
+              <li
+                key={item.id}
+                className="flex items-start gap-4 transition-colors hover:bg-muted/50 p-2 rounded-lg cursor-pointer"
+              >
+                <div
+                  className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg font-bold text-xs text-center ${
+                    item.tag === "Bug"
+                      ? "bg-red-500/10 text-red-500"
+                      : "bg-primary/10 text-primary"
+                  }`}
+                >
+                  {getIconText(item)}
+                </div>
+                <div>
+                  <p className="font-semibold">{item.title}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {getSecondaryText(item)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-8">
+            <Icon className="h-8 w-8 mb-4" />
+            <p className="text-sm">{emptyText}</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+interface KanbanTask {
+  id: string;
+  title: string;
+  tag?: string;
+  createdAt: string;
+}
+
+interface Note {
+  id: string;
+  title: string;
+  content: string;
+}
+
 interface DashboardData {
   user: { name: string };
-  summary: { tasksToday: number; tasksCompleted: number; focusMinutes: number };
-  tasks: { id: number; title: string; time: string; subject: string }[];
-  notes: { id: number; title: string; subject: string }[];
+  summary: {
+    tasksToday: number;
+    tasksCompleted: number;
+    focusMinutes: number;
+    notesCreated?: number;
+  };
+  kanbanTasks: KanbanTask[];
+  notes: Note[];
   phrases: { id: number; text: string }[];
 }
 
-// --- COMPONENTE DE PÁGINA ---
 export default function Home() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -155,7 +183,6 @@ export default function Home() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Para testes, se o servidor não estiver rodando, use dados mockados após um erro
         const endpoints = ["user", "summary", "tasks", "notes", "phrases"];
         const requests = endpoints.map((endpoint) =>
           fetch(`http://localhost:3001/${endpoint}`)
@@ -169,14 +196,36 @@ export default function Home() {
           }
         }
 
-        const [user, summary, tasks, notes, phrases] = await Promise.all(
+        const [user, summary, kanbanTasks, notes, phrases] = await Promise.all(
           responses.map((res) => res.json())
         );
 
-        setData({ user, summary, tasks, notes, phrases });
+        // Ordena as tarefas e pega as 3 mais recentes
+        const recentKanbanTasks = kanbanTasks
+          .sort(
+            (a: KanbanTask, b: KanbanTask) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .slice(0, 3);
+
+        // Pega as 3 anotações mais recentes
+        const recentNotes = notes
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .slice(0, 3);
+
+        setData({
+          user,
+          summary,
+          kanbanTasks: recentKanbanTasks,
+          notes: recentNotes,
+          phrases,
+        });
       } catch (err: any) {
         setError(
-          "Não foi possível conectar ao servidor. Verifique se o `json-server` está rodando na porta 3001."
+          "Não foi possível conectar ao servidor. Verifique se o `json-server` está rodando e o `db.json` está correto."
         );
         console.error(err);
       } finally {
@@ -227,16 +276,19 @@ export default function Home() {
         </p>
       </header>
 
+      <MotivationalPhrase phrase={randomPhrase} />
+
       <main className="flex flex-1 flex-col gap-6 lg:gap-8">
         <DailySummary summary={data.summary} />
 
+        {/* --- EXPLICAÇÃO: Layout de 2 colunas para os cards principais --- */}
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
           <ItemListCard
-            title="Próximas Sessões de Estudo"
-            items={data.tasks}
-            icon={Pin}
-            emptyText="Nenhuma sessão agendada para hoje."
-            type="task"
+            title="Atividade Recente no Kanban"
+            items={data.kanbanTasks}
+            icon={ListPlus}
+            emptyText="Nenhuma tarefa recente no Kanban."
+            type="kanbantask"
           />
           <ItemListCard
             title="Anotações Recentes"
@@ -246,9 +298,18 @@ export default function Home() {
             type="note"
           />
         </div>
-
-        <MotivationalPhrase phrase={randomPhrase} />
       </main>
     </div>
   );
 }
+
+// --- ATOM: Frase Motivacional (sem alterações) ---
+const MotivationalPhrase = ({ phrase }: { phrase: string }) => (
+  <div className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-soft">
+    <div className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <Sparkles className="h-5 w-5" />
+    </div>
+    <h4 className="font-semibold text-card-foreground">Pílula de Motivação</h4>
+    <p className="mt-2 text-sm text-muted-foreground italic">"{phrase}"</p>
+  </div>
+);
