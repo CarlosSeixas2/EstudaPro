@@ -29,8 +29,10 @@ export function TaskCard({ task, tagColors }: TaskCardProps) {
     <Card
       ref={setNodeRef}
       style={style}
-      className={`cursor-grab active:cursor-grabbing transition-all hover:shadow-md ${
-        isDragging ? "opacity-50 rotate-3 shadow-lg" : ""
+      className={`cursor-grab active:cursor-grabbing transition-all duration-200 ${
+        isDragging
+          ? "opacity-60 rotate-6 shadow-2xl scale-105 z-50 ring-2 ring-primary/30"
+          : "hover:shadow-lg hover:scale-[1.02] hover:rotate-1"
       }`}
       {...attributes}
     >
@@ -41,9 +43,17 @@ export function TaskCard({ task, tagColors }: TaskCardProps) {
           </h3>
           <div
             {...listeners}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1 rounded"
+            className={`transition-all p-1 -m-1 rounded hover:bg-muted group ${
+              isDragging
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <GripVertical className="h-4 w-4" />
+            <GripVertical
+              className={`h-4 w-4 transition-transform ${
+                isDragging ? "scale-110" : "group-hover:scale-110"
+              }`}
+            />
           </div>
         </div>
         {task.tag && (
