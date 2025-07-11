@@ -1,0 +1,47 @@
+{
+  "user": {
+    "name": "Alex"
+  },
+  "summary": {
+    "tasksToday": 5,
+    "tasksCompleted": 1,
+    "focusMinutes": 75
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Revisar Fórmulas de Física Quântica",
+      "time": "14:00",
+      "subject": "Física"
+    },
+    {
+      "id": 2,
+      "title": "Resolver lista de exercícios de Cálculo",
+      "time": "16:00",
+      "subject": "Cálculo"
+    },
+    {
+      "id": 3,
+      "title": "Ler capítulo 5 de História Antiga",
+      "time": "19:30",
+      "subject": "História"
+    }
+  ],
+  "notes": [
+    { "id": 1, "title": "Princípios da Termodinâmica", "subject": "Física" },
+    { "id": 2, "title": "Conceitos de Integrais Duplas", "subject": "Cálculo" },
+    {
+      "id": 3,
+      "title": "Resumo sobre a Revolução Francesa",
+      "subject": "História"
+    }
+  ],
+  "phrases": [
+    { "id": 1, "text": "A disciplina é a ponte entre metas e realizações." },
+    {
+      "id": 2,
+      "text": "O sucesso é a soma de pequenos esforços repetidos dia após dia."
+    },
+    { "id": 3, "text": "Não espere por uma oportunidade, crie-a." }
+  ]
+}

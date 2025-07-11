@@ -10,6 +10,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -18,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { NavUser } from "./navuser";
 
 const mainMenuItems = [{ label: "Início", icon: Home, path: "/" }];
 
@@ -31,6 +33,14 @@ const toolsItems = [
   { label: "Modo Foco", icon: Brain, path: "/focus-mode" },
   { label: "Ajudante IA", icon: Bot, path: "/assistant" },
 ];
+
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
+  },
+};
 
 export default function AppSidebar() {
   return (
@@ -125,6 +135,9 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
     </Sidebar>
   );
 }
