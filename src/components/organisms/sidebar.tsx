@@ -7,6 +7,7 @@ import {
   Home,
   NotebookPen,
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
@@ -43,13 +44,16 @@ const data = {
 };
 
 export default function AppSidebar() {
+  const location = useLocation(); // 2. Usando o hook useLocation
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div className="flex items-center gap-2">
+              {/* O link para a home pode continuar como <a> se for para recarregar a página intencionalmente */}
+              <Link to="/" className="flex items-center gap-2">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Book className="size-4" />
                 </div>
@@ -59,7 +63,7 @@ export default function AppSidebar() {
                     Gerenciando seu Estudo
                   </span>
                 </div>
-              </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -76,12 +80,14 @@ export default function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={item.label}
-                    isActive={window.location.pathname === item.path}
+                    // 5. Lógica isActive atualizada
+                    isActive={location.pathname === item.path}
                   >
-                    <a href={item.path}>
+                    {/* 3. Substituído <a> por <Link> e href por to */}
+                    <Link to={item.path}>
                       <item.icon />
                       <span>{item.label}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -99,12 +105,12 @@ export default function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={item.label}
-                    isActive={window.location.pathname.startsWith(item.path)}
+                    isActive={location.pathname.startsWith(item.path)}
                   >
-                    <a href={item.path}>
+                    <Link to={item.path}>
                       <item.icon />
                       <span>{item.label}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -122,12 +128,12 @@ export default function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={item.label}
-                    isActive={window.location.pathname.startsWith(item.path)}
+                    isActive={location.pathname.startsWith(item.path)}
                   >
-                    <a href={item.path}>
+                    <Link to={item.path}>
                       <item.icon />
                       <span>{item.label}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
