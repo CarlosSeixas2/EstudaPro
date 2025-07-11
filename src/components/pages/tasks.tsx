@@ -134,7 +134,7 @@ export default function KanbanBoard() {
     const fetchData = async () => {
       try {
         const [projectsResponse, tasksResponse] = await Promise.all([
-          fetch("http://localhost:3001/projects"),
+          fetch("http://localhost:3001/projects_kanban"),
           fetch("http://localhost:3001/tasks"),
         ]);
 
@@ -143,10 +143,13 @@ export default function KanbanBoard() {
         }
 
         // Os dados de `createdAt` vêm como strings, então os convertemos para objetos Date.
-        const projectsData = (await projectsResponse.json()).map((p: any) => ({
-          ...p,
-          createdAt: new Date(p.createdAt),
-        }));
+        const projectsData = (await projectsResponse.json()).map(
+          (p: any, index: number) => ({
+            ...p,
+            createdAt: new Date(p.createdAt),
+            color: p.color || projectColors[index % projectColors.length],
+          })
+        );
         const tasksData = (await tasksResponse.json()).map((t: any) => ({
           ...t,
           createdAt: new Date(t.createdAt),
@@ -181,46 +184,41 @@ export default function KanbanBoard() {
     setActiveTask(task || null);
   };
 
-  // --- EXPLICAÇÃO: ATUALIZANDO TAREFA (handleDragEnd) ---
-  // Quando uma tarefa é movida para outra coluna, esta função é chamada.
-  // Ela envia uma requisição `PATCH` para o servidor para atualizar apenas o `status` da tarefa.
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
+    // Reseta o DragOverlay
     setActiveTask(null);
 
+    // Se não soltou em um alvo válido, não faz nada
     if (!over) return;
 
     const taskId = active.id as string;
     const newStatus = over.id as TaskStatus;
-    const taskToUpdate = tasks.find((task) => task.id === taskId);
 
-    if (!taskToUpdate || taskToUpdate.status === newStatus) return;
+    const originalTask = tasks.find((task) => task.id === taskId);
+    if (!originalTask || originalTask.status === newStatus) return;
 
-    // Atualização otimista: atualiza a UI imediatamente para uma melhor experiência do usuário.
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
+    // Atualiza visualmente
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
         task.id === taskId ? { ...task, status: newStatus } : task
       )
     );
 
-    try {
-      const response = await fetch(`http://localhost:3001/tasks/${taskId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok)
-        throw new Error("Falha ao atualizar a tarefa no servidor.");
-    } catch (err) {
-      console.error(err);
-      // Se a requisição falhar, reverte a UI para o estado anterior.
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === taskId ? { ...task, status: taskToUpdate.status } : task
+    // Atualiza no servidor
+    fetch(`http://localhost:3001/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    }).catch(() => {
+      // Reverte visual se a atualização falhar
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === taskId ? { ...task, status: originalTask.status } : task
         )
       );
-    }
+    });
   };
 
   // --- EXPLICAÇÃO: CRIANDO NOVA TAREFA (handleCreateTask) ---
@@ -267,7 +265,7 @@ export default function KanbanBoard() {
     };
 
     try {
-      const response = await fetch("http://localhost:3001/projects", {
+      const response = await fetch("http://localhost:3001/projects_kanban", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(projectData),

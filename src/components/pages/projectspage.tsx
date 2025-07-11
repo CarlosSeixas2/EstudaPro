@@ -16,8 +16,8 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | undefined>();
 
-  // Fetch data from db.json
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,22 +47,86 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
     projectData: Omit<Project, "id" | "createdAt">
   ) => {
     try {
-      const response = await fetch("http://localhost:3001/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...projectData,
-          createdAt: new Date().toISOString(),
-        }),
-      });
-      const newProject = await response.json();
-      setProjects((prev) => [
-        ...prev,
-        { ...newProject, createdAt: new Date(newProject.createdAt) },
-      ]);
+      if (editingProject) {
+        // Lógica de Edição (Update)
+        const response = await fetch(
+          `http://localhost:3001/projects/${editingProject.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...projectData,
+              id: editingProject.id,
+              createdAt: editingProject.createdAt.toISOString(),
+            }),
+          }
+        );
+        const updatedProject = await response.json();
+        setProjects((prev) =>
+          prev.map((p) =>
+            p.id === updatedProject.id
+              ? {
+                  ...updatedProject,
+                  createdAt: new Date(updatedProject.createdAt),
+                }
+              : p
+          )
+        );
+      } else {
+        // Lógica de Criação
+        const response = await fetch("http://localhost:3001/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...projectData,
+            createdAt: new Date().toISOString(),
+          }),
+        });
+        const newProject = await response.json();
+        setProjects((prev) => [
+          ...prev,
+          { ...newProject, createdAt: new Date(newProject.createdAt) },
+        ]);
+      }
     } catch (error) {
       console.error("Falha ao salvar projeto:", error);
+    } finally {
+      setIsProjectDialogOpen(false);
+      setEditingProject(undefined);
     }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (
+      window.confirm(
+        "Tem certeza que deseja deletar este projeto e todas as suas anotações?"
+      )
+    ) {
+      try {
+        await fetch(`http://localhost:3001/projects/${projectId}`, {
+          method: "DELETE",
+        });
+        // Deleta também as anotações associadas
+        const notesToDelete = notes.filter((n) => n.projectId === projectId);
+        await Promise.all(
+          notesToDelete.map((note) =>
+            fetch(`http://localhost:3001/notes/${note.id}`, {
+              method: "DELETE",
+            })
+          )
+        );
+
+        setProjects(projects.filter((p) => p.id !== projectId));
+        setNotes(notes.filter((n) => n.projectId !== projectId));
+      } catch (error) {
+        console.error("Falha ao deletar projeto:", error);
+      }
+    }
+  };
+
+  const handleOpenDialog = (project?: Project) => {
+    setEditingProject(project);
+    setIsProjectDialogOpen(true);
   };
 
   const getNotesCount = (projectId: string) => {
@@ -93,7 +157,7 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
             Seus projetos e anotações organizados.
           </p>
         </div>
-        <Button onClick={() => setIsProjectDialogOpen(true)}>
+        <Button onClick={() => handleOpenDialog()}>
           <FolderPlus className="mr-2 h-4 w-4" />
           Novo Projeto
         </Button>
@@ -116,6 +180,8 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
                 project={project}
                 noteCount={getNotesCount(project.id)}
                 onClick={() => onProjectSelect(project)}
+                onEdit={() => handleOpenDialog(project)}
+                onDelete={() => handleDeleteProject(project.id)}
               />
             ))}
           </div>
@@ -127,8 +193,12 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
       </main>
       <ProjectDialog
         isOpen={isProjectDialogOpen}
-        onClose={() => setIsProjectDialogOpen(false)}
+        onClose={() => {
+          setIsProjectDialogOpen(false);
+          setEditingProject(undefined);
+        }}
         onSave={handleSaveProject}
+        project={editingProject}
       />
     </div>
   );

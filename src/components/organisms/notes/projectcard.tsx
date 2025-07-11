@@ -1,20 +1,40 @@
-import { Calendar, FileText } from "lucide-react";
+import { Calendar, FileText, MoreVertical, Edit, Trash2 } from "lucide-react";
 import type { Project } from "@/types/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 interface ProjectCardProps {
   project: Project;
   noteCount: number;
   onClick: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-export function ProjectCard({ project, noteCount, onClick }: ProjectCardProps) {
+export function ProjectCard({
+  project,
+  noteCount,
+  onClick,
+  onEdit,
+  onDelete,
+}: ProjectCardProps) {
+  // Impede que o clique nos botões de ação dispare o clique no card principal.
+  const handleActionClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div
       onClick={onClick}
-      className="group cursor-pointer rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col"
+      className="group relative cursor-pointer rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col"
     >
       <div
-        className="h-32 bg-muted flex items-center justify-center bg-cover bg-center relative"
+        className="h-32 bg-muted flex items-center justify-center bg-cover bg-center"
         style={{ backgroundImage: `url(${project.imageUrl})` }}
       >
         {!project.imageUrl && (
@@ -23,7 +43,7 @@ export function ProjectCard({ project, noteCount, onClick }: ProjectCardProps) {
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all" />
       </div>
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+        <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors pr-8">
           {project.name}
         </h3>
         {project.description && (
@@ -41,6 +61,31 @@ export function ProjectCard({ project, noteCount, onClick }: ProjectCardProps) {
             <span>{project.createdAt.toLocaleDateString()}</span>
           </div>
         </div>
+      </div>
+      <div
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={handleActionClick}
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+              <Edit className="mr-2 h-4 w-4" />
+              <span>Editar</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={onDelete}
+              className="text-red-500 focus:text-red-500 cursor-pointer"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Deletar</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
