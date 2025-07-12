@@ -55,13 +55,6 @@
   ],
   "notes": [
     {
-      "title": "React",
-      "content": "Projeto de Gerenciamento de Estudos",
-      "projectId": "1",
-      "createdAt": "2025-07-11T21:05:43.511Z",
-      "id": "9859"
-    },
-    {
       "id": "80e3",
       "title": "Figma",
       "content": "Montar Design para o <font color=\"#eab308\">Sintese Play</font>",
@@ -90,7 +83,7 @@
       "id": "2",
       "title": "Fix authentication bug",
       "description": "Users are unable to log in with Google OAuth",
-      "status": "in-progress",
+      "status": "todo",
       "tag": "Bug",
       "createdAt": "2024-01-14T00:00:00.000Z",
       "projectId": "1"
@@ -99,7 +92,7 @@
       "id": "3",
       "title": "Implement dark mode",
       "description": "Add theme toggle functionality across the application",
-      "status": "Feito",
+      "status": "in-progress",
       "tag": "Feature",
       "createdAt": "2024-01-13T00:00:00.000Z",
       "projectId": "1"

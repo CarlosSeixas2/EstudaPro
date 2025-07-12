@@ -10,13 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoteDialog } from "@/components/organisms/notes/notedialog";
 import { useBreadcrumb } from "@/contexts/breadcrumbcontext";
 import type { Project, Note } from "@/types/types";

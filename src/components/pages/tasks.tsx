@@ -15,7 +15,6 @@ import {
   FolderPlus,
   Loader2,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,7 +39,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { KanbanColumn } from "@/components/organisms/kanban/kanbancolumn";
 import { ProjectSelector } from "@/components/organisms/kanban/projectselector";
 
-// Tipos permanecem os mesmos
 export type TaskStatus = "todo" | "in-progress" | "Feito";
 export type TaskTag =
   | "Design"
@@ -55,7 +53,7 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   tag?: TaskTag;
-  createdAt: Date; // Mantemos como Date para facilitar a manipulação no frontend
+  createdAt: Date;
   projectId: string;
 }
 
@@ -64,10 +62,9 @@ export interface Project {
   name: string;
   description?: string;
   color: string;
-  createdAt: Date; // Mantemos como Date
+  createdAt: Date;
 }
 
-// Constantes permanecem as mesmas
 const columns = [
   { id: "todo", title: "Pendente", status: "todo" as TaskStatus },
   {
@@ -98,13 +95,18 @@ const projectColors = [
   "bg-indigo-500",
   "bg-pink-500",
   "bg-teal-500",
+  "bg-gray-500",
+  "bg-orange-500",
 ];
 
 export default function KanbanBoard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -123,13 +125,13 @@ export default function KanbanBoard() {
     description: "",
     color: projectColors[0],
   });
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
-  // busca os projetos e tarefas do `json-server`.
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -172,7 +174,7 @@ export default function KanbanBoard() {
     };
 
     fetchData();
-  }, []); // O array vazio [] garante que isso rode apenas uma vez.
+  }, []);
 
   const currentProject = projects.find((p) => p.id === currentProjectId);
   const currentProjectTasks = tasks.filter(
@@ -228,9 +230,6 @@ export default function KanbanBoard() {
     });
   };
 
-  // --- EXPLICAÇÃO: CRIANDO NOVA TAREFA (handleCreateTask) ---
-  // Envia uma requisição `POST` para `http://localhost:3001/tasks` com os dados da nova tarefa.
-  // O `json-server` automaticamente adiciona a tarefa ao `db.json`.
   const handleCreateTask = async () => {
     if (!newTask.title.trim() || !currentProjectId) return;
 
@@ -261,8 +260,6 @@ export default function KanbanBoard() {
     }
   };
 
-  // --- EXPLICAÇÃO: CRIANDO NOVO PROJETO (handleCreateProject) ---
-  // Similar à criação de tarefas, mas envia a requisição para o endpoint `/projects`.
   const handleCreateProject = async () => {
     if (!newProject.name.trim()) return;
 
@@ -297,13 +294,10 @@ export default function KanbanBoard() {
     return currentProjectTasks.filter((task) => task.status === status);
   };
 
-  // --- EXPLICAÇÃO: TRATAMENTO DE CARREGAMENTO E ERRO ---
-  // O JSX agora verifica os estados `loading` e `error` para exibir mensagens apropriadas.
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-4">A carregar o seu quadro Kanban...</p>
       </div>
     );
   }
@@ -316,7 +310,6 @@ export default function KanbanBoard() {
     );
   }
 
-  // O resto do JSX permanece quase o mesmo...
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
