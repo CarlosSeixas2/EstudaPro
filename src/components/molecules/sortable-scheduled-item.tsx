@@ -6,9 +6,13 @@ import type { ScheduledItem } from "@/types/types";
 
 interface SortableScheduledItemProps {
   item: ScheduledItem;
+  onDoubleClick: (item: ScheduledItem) => void; // Add this prop
 }
 
-export function SortableScheduledItem({ item }: SortableScheduledItemProps) {
+export function SortableScheduledItem({
+  item,
+  onDoubleClick,
+}: SortableScheduledItemProps) {
   const {
     attributes,
     listeners,
@@ -27,8 +31,9 @@ export function SortableScheduledItem({ item }: SortableScheduledItemProps) {
     <div
       ref={setNodeRef}
       style={style}
+      onDoubleClick={() => onDoubleClick(item)} // Add this event
       className={cn(
-        "flex items-center gap-3 p-2 rounded-lg bg-card border shadow-sm touch-none",
+        "flex items-center gap-3 p-2 rounded-lg bg-card border shadow-sm touch-none cursor-pointer",
         isDragging && "opacity-60"
       )}
     >

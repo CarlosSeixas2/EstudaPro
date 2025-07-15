@@ -26,7 +26,7 @@ export function DraggableSubject({
       {...attributes}
       {...listeners}
       className={cn(
-        "group/libitem relative flex items-center gap-3 p-2.5 rounded-lg bg-background border cursor-grab active:cursor-grabbing transition-all duration-200",
+        "group/libitem relative flex items-center gap-3 p-3.5 rounded-lg bg-background border cursor-grab active:cursor-grabbing transition-all duration-200",
         isDragging && "opacity-50 shadow-lg scale-105"
       )}
     >

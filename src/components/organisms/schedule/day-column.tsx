@@ -11,9 +11,10 @@ import { SortableScheduledItem } from "@/components/molecules/sortable-scheduled
 interface DayColumnProps {
   day: string;
   items: ScheduledItem[];
+  onItemDoubleClick: (item: ScheduledItem) => void; // Add this prop
 }
 
-export function DayColumn({ day, items }: DayColumnProps) {
+export function DayColumn({ day, items, onItemDoubleClick }: DayColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: day });
 
   return (
@@ -33,7 +34,11 @@ export function DayColumn({ day, items }: DayColumnProps) {
           strategy={verticalListSortingStrategy}
         >
           {items.map((item) => (
-            <SortableScheduledItem key={item.uniqueId} item={item} />
+            <SortableScheduledItem
+              key={item.uniqueId}
+              item={item}
+              onDoubleClick={onItemDoubleClick}
+            />
           ))}
         </SortableContext>
         {items.length === 0 && (

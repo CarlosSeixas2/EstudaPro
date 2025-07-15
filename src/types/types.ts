@@ -42,6 +42,7 @@ export interface Subject {
 
 export interface ScheduledItem extends Subject {
   uniqueId: string;
+  notes?: string;
 }
 
 export interface Schedule {

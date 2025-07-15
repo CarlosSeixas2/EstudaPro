@@ -27,6 +27,7 @@ import { DeleteZone } from "@/components/molecules/delete-zone";
 import { DayColumn } from "@/components/organisms/schedule/day-column";
 import { SubjectLibrary } from "@/components/organisms/schedule/subject-library";
 import { SubjectDialog } from "@/components/organisms/schedule/subject-dialog";
+import { ScheduleItemDialog } from "@/components/organisms/schedule/schedule-item-dialog"; // Import the new dialog
 
 interface StudyPlannerTemplateProps {
   initialSubjects: Subject[];
@@ -48,6 +49,10 @@ export function StudyPlannerTemplate({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
+
+  // State for the new dialog
+  const [selectedItem, setSelectedItem] = useState<ScheduledItem | null>(null);
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -219,6 +224,25 @@ export function StudyPlannerTemplate({
     }
   };
 
+  // Handler for opening the item dialog
+  const handleItemDoubleClick = (item: ScheduledItem) => {
+    setSelectedItem(item);
+    setIsItemDialogOpen(true);
+  };
+
+  // Handler for saving notes from the dialog
+  const handleSaveNotes = (notes: string) => {
+    if (!selectedItem) return;
+
+    const updatedSchedule = { ...schedule };
+    for (const day in updatedSchedule) {
+      updatedSchedule[day] = updatedSchedule[day].map((item) =>
+        item.uniqueId === selectedItem.uniqueId ? { ...item, notes } : item
+      );
+    }
+    setSchedule(updatedSchedule);
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -251,7 +275,12 @@ export function StudyPlannerTemplate({
         <main className="flex flex-col gap-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             {daysOfWeek.map((day) => (
-              <DayColumn key={day} day={day} items={schedule[day] || []} />
+              <DayColumn
+                key={day}
+                day={day}
+                items={schedule[day] || []}
+                onItemDoubleClick={handleItemDoubleClick}
+              />
             ))}
           </div>
 
@@ -302,6 +331,14 @@ export function StudyPlannerTemplate({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Render the new dialog */}
+      <ScheduleItemDialog
+        item={selectedItem}
+        isOpen={isItemDialogOpen}
+        onClose={() => setIsItemDialogOpen(false)}
+        onSave={handleSaveNotes}
+      />
     </DndContext>
   );
 }
