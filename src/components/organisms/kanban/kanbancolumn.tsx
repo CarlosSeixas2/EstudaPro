@@ -5,9 +5,9 @@ import {
 } from "@dnd-kit/sortable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TaskCard } from "./taskcard";
-import type { Task, TaskStatus, TaskTag } from "@/pages/tasks";
+import type { Task, TaskStatus, TaskTag } from "@/types/types";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Zap, ListTodo } from "lucide-react"; // 1. Ícones importados
+import { CheckCircle2, Zap, ListTodo } from "lucide-react";
 
 interface KanbanColumnProps {
   title: string;
@@ -19,7 +19,8 @@ interface KanbanColumnProps {
 const statusColors: Record<TaskStatus, string> = {
   todo: "bg-red-500/5 dark:bg-red-900/10 border-red-500/10",
   "in-progress": "bg-yellow-500/5 dark:bg-yellow-900/10 border-yellow-500/10",
-  Feito: "bg-green-500/5 dark:bg-green-900/10 border-green-500/10",
+  Feito:
+    "bg-green-100 dark:bg-green-900/20 border-green-100 dark:border-green-800/50",
 };
 
 // 2. Mapeamento do status para o componente do ícone
@@ -99,7 +100,7 @@ export function KanbanColumn({
                   <div className="text-xs opacity-75">Release to add task</div>
                 </div>
               ) : (
-                "Solte aqui"
+                "Solte o item aqui"
               )}
             </div>
           )}

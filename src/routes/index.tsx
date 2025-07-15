@@ -7,6 +7,7 @@ import Notes from "@/pages/notes";
 import Focus from "@/pages/focus";
 import Assistant from "@/pages/assistant";
 import MainLayout from "@/layouts";
+import CalendarPage from "@/pages/calendar";
 
 function MainRoutes() {
   return (
@@ -17,6 +18,7 @@ function MainRoutes() {
             <Route index element={<Home />} />
             <Route path="/schedule" element={<Timeline />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="calendar" element={<CalendarPage />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/focus-mode" element={<Focus />} />
             <Route path="/assistant" element={<Assistant />} />

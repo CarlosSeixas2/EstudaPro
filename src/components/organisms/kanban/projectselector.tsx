@@ -14,7 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from "react";
-import type { Project } from "@/pages/tasks";
+import type { Project } from "@/types/types";
 
 interface ProjectSelectorProps {
   projects: Project[];

@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState } from "react";
 import type { ReactNode } from "react";
 
 interface BreadcrumbContextType {
@@ -6,9 +6,9 @@ interface BreadcrumbContextType {
   setProjectCrumb: (project: { name: string; path: string } | null) => void;
 }
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(
-  undefined
-);
+export const BreadcrumbContext = createContext<
+  BreadcrumbContextType | undefined
+>(undefined);
 
 export const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
   const [projectCrumb, setProjectCrumb] = useState<{
@@ -21,12 +21,4 @@ export const BreadcrumbProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </BreadcrumbContext.Provider>
   );
-};
-
-export const useBreadcrumb = () => {
-  const context = useContext(BreadcrumbContext);
-  if (context === undefined) {
-    throw new Error("useBreadcrumb must be used within a BreadcrumbProvider");
-  }
-  return context;
 };

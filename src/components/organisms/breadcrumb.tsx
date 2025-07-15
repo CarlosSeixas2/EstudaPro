@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
-import { useBreadcrumb } from "@/contexts/breadcrumb-context";
+import { useBreadcrumb } from "@/hooks/use-breadcrumb";
 
 const breadcrumbNameMap: { [key: string]: string } = {
   schedule: "Cronograma",
@@ -16,6 +16,7 @@ const breadcrumbNameMap: { [key: string]: string } = {
   notes: "Anotações",
   "focus-mode": "Modo Foco",
   assistant: "Ajudante IA",
+  calendar: "Calendário",
 };
 
 export default function AppBreadcrumb() {

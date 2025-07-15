@@ -12,19 +12,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoteDialog } from "@/components/organisms/notes/notedialog";
-import { useBreadcrumb } from "@/contexts/breadcrumb-context";
 import type { Project, Note } from "@/types/types";
 import { cn } from "@/lib/utils";
+import { useBreadcrumb } from "@/hooks/use-breadcrumb";
 
-interface ProjectNotesPageProps {
+interface ProjectNotesTemplateProps {
   project: Project;
   onBack: () => void;
 }
 
-export default function ProjectNotesPage({
+export function ProjectNotesTemplate({
   project,
   onBack,
-}: ProjectNotesPageProps) {
+}: ProjectNotesTemplateProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,7 +50,6 @@ export default function ProjectNotesPage({
         );
         const data = await response.json();
 
-        // Correctly map and convert dates before setting any state
         const notesWithDates = data
           .map((n: any) => ({ ...n, createdAt: new Date(n.createdAt) }))
           .sort(
@@ -58,12 +57,7 @@ export default function ProjectNotesPage({
           );
 
         setNotes(notesWithDates);
-
-        if (notesWithDates.length > 0) {
-          setSelectedNote(notesWithDates[0]);
-        } else {
-          setSelectedNote(null);
-        }
+        setSelectedNote(notesWithDates.length > 0 ? notesWithDates[0] : null);
       } catch (error) {
         console.error("Falha ao buscar anotações:", error);
       } finally {
@@ -159,7 +153,6 @@ export default function ProjectNotesPage({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <header className="flex items-center gap-4 mb-6 flex-shrink-0">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
@@ -190,9 +183,7 @@ export default function ProjectNotesPage({
         </Button>
       </header>
 
-      {/* Main Content */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 overflow-hidden">
-        {/* Notes List */}
         <div className="md:col-span-1 lg:col-span-1 flex flex-col gap-4 overflow-y-auto pr-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -230,7 +221,6 @@ export default function ProjectNotesPage({
           </div>
         </div>
 
-        {/* Note Content */}
         <div className="md:col-span-2 lg:col-span-3 overflow-y-auto">
           {selectedNote ? (
             <Card className="h-full">

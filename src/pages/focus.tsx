@@ -33,12 +33,12 @@ export default function Focus() {
         </p>
       </header>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Coluna do Cronômetro */}
+        {/* Cronômetro */}
         <div className="lg:col-span-1 flex justify-center">
           <PomodoroTimer onSessionComplete={handleSessionComplete} />
         </div>
 
-        {/* Coluna do Registro */}
+        {/* Registros */}
         <div className="lg:col-span-2">
           <PomodoroLog log={log} onUpdateLog={handleUpdateLog} />
         </div>

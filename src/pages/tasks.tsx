@@ -292,12 +292,16 @@ export default function KanbanBoard() {
       if (!response.ok) throw new Error("Falha ao criar o projeto.");
 
       const createdProject = await response.json();
+      // Atualiza o estado dos projetos, adicionando o novo projeto
       setProjects((prev) => [
         ...prev,
         { ...createdProject, createdAt: new Date(createdProject.createdAt) },
       ]);
+      // Define o projeto recém-criado como o projeto atual
       setCurrentProjectId(createdProject.id);
+      // Limpa o formulário de criação de projeto
       setNewProject({ name: "", description: "", color: projectColors[0] });
+      // Fecha o diálogo de criação de projeto
       setIsCreateProjectDialogOpen(false);
     } catch (err) {
       console.error(err);
@@ -657,30 +661,6 @@ export default function KanbanBoard() {
                         </div>
                       ) : null;
                     })}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-medium mb-3">Recentes</h3>
-                  <div className="space-y-2">
-                    {currentProjectTasks
-                      .sort(
-                        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-                      )
-                      .slice(0, 3)
-                      .map((task) => (
-                        <div
-                          key={task.id}
-                          className="text-sm p-2 bg-muted rounded-md"
-                        >
-                          <div className="font-medium truncate">
-                            {task.title}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {task.createdAt.toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))}
                   </div>
                 </div>
               </CardContent>

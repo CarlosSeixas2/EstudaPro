@@ -11,6 +11,7 @@ export interface Project {
   name: string;
   description?: string;
   imageUrl?: string;
+  color?: string;
   createdAt: Date;
 }
 
@@ -47,4 +48,44 @@ export interface ScheduledItem extends Subject {
 
 export interface Schedule {
   [day: string]: ScheduledItem[];
+}
+
+export interface KanbanTask {
+  id: string;
+  title: string;
+  tag?: string;
+  createdAt: string;
+}
+
+export type TaskStatus = "todo" | "in-progress" | "Feito";
+
+export type TaskTag =
+  | "Design"
+  | "Bug"
+  | "Feature"
+  | "Enhancement"
+  | "Documentation";
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  tag?: TaskTag;
+  createdAt: Date;
+  projectId: string;
+}
+
+export type ViewMode = "day" | "week" | "month";
+export type TaskCategory = "Todas" | "Tarefas" | "Reuniões" | "Eventos";
+
+export interface CalendarTask {
+  id: string;
+  name: string;
+  description: string;
+  category: TaskCategory;
+  assignedTo: {
+    date: string; // YYYY-MM-DD
+    time: number; // Hour, e.g., 8 for 08:00
+  } | null;
 }

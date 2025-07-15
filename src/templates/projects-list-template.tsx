@@ -6,11 +6,13 @@ import { ProjectCard } from "@/components/organisms/notes/projectcard";
 import { ProjectDialog } from "@/components/organisms/notes/projectdialog";
 import type { Project, Note } from "@/types/types";
 
-interface ProjectsPageProps {
+interface ProjectsListTemplateProps {
   onProjectSelect: (project: Project) => void;
 }
 
-export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
+export function ProjectsListTemplate({
+  onProjectSelect,
+}: ProjectsListTemplateProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +50,6 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
   ) => {
     try {
       if (editingProject) {
-        // Lógica de Edição (Update)
         const response = await fetch(
           `http://localhost:3001/projects/${editingProject.id}`,
           {
@@ -73,7 +74,6 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
           )
         );
       } else {
-        // Lógica de Criação
         const response = await fetch("http://localhost:3001/projects", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -106,7 +106,6 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
         await fetch(`http://localhost:3001/projects/${projectId}`, {
           method: "DELETE",
         });
-        // Deleta também as anotações associadas
         const notesToDelete = notes.filter((n) => n.projectId === projectId);
         await Promise.all(
           notesToDelete.map((note) =>
@@ -152,9 +151,9 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
     <div className="flex flex-col h-full">
       <header className="flex items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projetos</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Anotações</h1>
           <p className="text-muted-foreground">
-            Seus projetos e anotações organizados.
+            Selecione um projeto para ver suas anotações ou crie um novo.
           </p>
         </div>
         <Button onClick={() => handleOpenDialog()}>
@@ -162,6 +161,7 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
           Novo Projeto
         </Button>
       </header>
+
       <div className="relative mb-6">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
@@ -171,6 +171,7 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+
       <main className="flex-1 overflow-y-auto">
         {filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -191,6 +192,7 @@ export function ProjectsPage({ onProjectSelect }: ProjectsPageProps) {
           </div>
         )}
       </main>
+
       <ProjectDialog
         isOpen={isProjectDialogOpen}
         onClose={() => {

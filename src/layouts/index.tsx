@@ -25,6 +25,7 @@ export default function MainLayout() {
           <ModeToggle />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 overflow-y-auto">
+          {/* Conteudo */}
           <Outlet />
         </main>
       </SidebarInset>

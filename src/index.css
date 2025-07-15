@@ -158,3 +158,17 @@
     animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   }
 }
+
+@layer components {
+  .time-indicator {
+    @apply absolute left-0 w-full z-20 flex items-center;
+  }
+  .time-indicator::before {
+    content: "";
+    @apply w-2 h-2 rounded-full bg-primary -ml-1; /* Pequeno ajuste de posição */
+  }
+  .time-indicator::after {
+    content: "";
+    @apply flex-1 h-px bg-primary;
+  }
+}

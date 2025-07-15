@@ -27,6 +27,7 @@
       "name": "Vereda",
       "description": "Marketplace de Materias de Construção Civil",
       "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800",
+      "color": "bg-blue-500",
       "createdAt": "2024-07-10T10:00:00.000Z"
     },
     {
@@ -34,6 +35,7 @@
       "name": "Sintese Play",
       "description": "Aplicativo para gerenciar quadras de esportes",
       "imageUrl": "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800",
+      "color": "bg-green-500",
       "createdAt": "2024-07-11T11:00:00.000Z"
     }
   ],
@@ -83,7 +85,7 @@
       "id": "2",
       "title": "Fix authentication bug",
       "description": "Users are unable to log in with Google OAuth",
-      "status": "in-progress",
+      "status": "Feito",
       "tag": "Bug",
       "createdAt": "2024-01-14T00:00:00.000Z",
       "projectId": "1"
@@ -92,7 +94,7 @@
       "id": "3",
       "title": "Implement dark mode",
       "description": "Add theme toggle functionality across the application",
-      "status": "Feito",
+      "status": "in-progress",
       "tag": "Feature",
       "createdAt": "2024-01-13T00:00:00.000Z",
       "projectId": "1"
