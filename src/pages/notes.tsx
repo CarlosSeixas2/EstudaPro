@@ -15,7 +15,7 @@ export default function HierarchicalNotes() {
   };
 
   return (
-    <>
+    <div className="p-4 md:p-4">
       {selectedProject ? (
         <ProjectNotesPage
           project={selectedProject}
@@ -24,6 +24,6 @@ export default function HierarchicalNotes() {
       ) : (
         <ProjectsPage onProjectSelect={handleProjectSelect} />
       )}
-    </>
+    </div>
   );
 }

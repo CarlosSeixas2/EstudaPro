@@ -43,7 +43,7 @@ export function DayColumn({ day, items, onItemDoubleClick }: DayColumnProps) {
         </SortableContext>
         {items.length === 0 && (
           <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground border-2 border-dashed rounded-lg p-4">
-            Arraste uma matéria aqui
+            Arraste a matéria aqui
           </div>
         )}
       </CardContent>

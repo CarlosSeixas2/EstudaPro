@@ -2,6 +2,7 @@ import {
   Book,
   Bot,
   Brain,
+  Calendar1,
   CalendarDays,
   ClipboardList,
   Home,
@@ -28,6 +29,7 @@ const organizationItems = [
   { label: "Cronograma", icon: CalendarDays, path: "/schedule" },
   { label: "Tarefas", icon: ClipboardList, path: "/tasks" },
   { label: "Anotações", icon: NotebookPen, path: "/notes" },
+  { label: "Calendário", icon: Calendar1, path: "/calendar" },
 ];
 
 const toolsItems = [
@@ -37,8 +39,8 @@ const toolsItems = [
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Carlos Seixas",
+    email: "carlosseixas@gmail.com",
     avatar: "/avatars/shadcn.jpg",
   },
 };

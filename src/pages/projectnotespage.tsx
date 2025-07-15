@@ -271,14 +271,16 @@ export default function ProjectNotesPage({
               </CardContent>
             </Card>
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-center bg-muted/30 rounded-lg">
+            <div className="min-h-screen flex flex-col items-center justify-center h-full text-center bg-muted/30 rounded-lg">
               <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold text-muted-foreground">
-                Selecione ou crie uma anotação
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Comece a organizar suas ideias.
-              </p>
+              <div>
+                <h3 className="text-lg font-semibold text-muted-foreground">
+                  Selecione ou crie uma anotação
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Comece a organizar suas ideias.
+                </p>
+              </div>
             </div>
           )}
         </div>

@@ -14,6 +14,7 @@ import {
   PanelLeft,
   FolderPlus,
   Loader2,
+  Filter, // Ícone de Filtro importado
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"; // Componentes de Dropdown
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -104,7 +113,6 @@ export default function KanbanBoard() {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
-
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -113,6 +121,9 @@ export default function KanbanBoard() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCreateProjectDialogOpen, setIsCreateProjectDialogOpen] =
     useState(false);
+
+  // --- NOVO: Estado para os filtros de tags ---
+  const [selectedTags, setSelectedTags] = useState<TaskTag[]>([]);
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -144,7 +155,6 @@ export default function KanbanBoard() {
           throw new Error("Falha ao buscar dados do servidor.");
         }
 
-        // Os dados de `createdAt` vêm como strings, então os convertemos para objetos Date.
         const projectsData = (await projectsResponse.json()).map(
           (p: any, index: number) => ({
             ...p,
@@ -177,51 +187,55 @@ export default function KanbanBoard() {
   }, []);
 
   const currentProject = projects.find((p) => p.id === currentProjectId);
+
+  // Tarefas do projeto atual
   const currentProjectTasks = tasks.filter(
     (task) => task.projectId === currentProjectId
   );
 
+  // --- NOVO: Lógica de filtragem ---
+  // Aplica o filtro de tags sobre as tarefas do projeto atual
+  const filteredTasks = currentProjectTasks.filter(
+    (task) =>
+      selectedTags.length === 0 || (task.tag && selectedTags.includes(task.tag))
+  );
+
   const handleDragStart = (event: DragStartEvent) => {
-    const task = currentProjectTasks.find((t) => t.id === event.active.id);
+    // Busca a tarefa na lista filtrada
+    const task = filteredTasks.find((t) => t.id === event.active.id);
     setActiveTask(task || null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    // Reseta o DragOverlay
     setActiveTask(null);
 
-    // Se não soltou em um alvo válido, não faz nada
     if (!over) return;
 
     const taskId = active.id as string;
     const newStatus = over.id as string;
 
-    // Valida se o status é válido
     const validStatuses: TaskStatus[] = ["todo", "in-progress", "Feito"];
     if (!validStatuses.includes(newStatus as TaskStatus)) {
-      return; // Ignora se não for um status válido
+      return;
     }
 
     const validatedStatus = newStatus as TaskStatus;
     const originalTask = tasks.find((task) => task.id === taskId);
     if (!originalTask || originalTask.status === validatedStatus) return;
 
-    // Atualiza visualmente
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
         task.id === taskId ? { ...task, status: validatedStatus } : task
       )
     );
 
-    // Atualiza no servidor
     fetch(`http://localhost:3001/tasks/${taskId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: validatedStatus }),
     }).catch(() => {
-      // Reverte visual se a atualização falhar
       setTasks((currentTasks) =>
         currentTasks.map((task) =>
           task.id === taskId ? { ...task, status: originalTask.status } : task
@@ -290,8 +304,16 @@ export default function KanbanBoard() {
     }
   };
 
+  // --- ATUALIZADO: Usa a lista de tarefas filtrada ---
   const getTasksByStatus = (status: TaskStatus) => {
-    return currentProjectTasks.filter((task) => task.status === status);
+    return filteredTasks.filter((task) => task.status === status);
+  };
+
+  // --- NOVO: Função para lidar com a mudança de filtros ---
+  const handleTagFilterChange = (tag: TaskTag, checked: boolean) => {
+    setSelectedTags((prev) =>
+      checked ? [...prev, tag] : prev.filter((t) => t !== tag)
+    );
   };
 
   if (loading) {
@@ -322,11 +344,6 @@ export default function KanbanBoard() {
                   Gerencie seus projetos e tarefas com eficiência
                 </p>
               </div>
-              <ProjectSelector
-                projects={projects}
-                currentProjectId={currentProjectId || ""}
-                onProjectChange={setCurrentProjectId}
-              />
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -560,7 +577,7 @@ export default function KanbanBoard() {
                       <span className="text-sm text-muted-foreground">
                         Pendente
                       </span>
-                      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                      <Badge className="bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">
                         {getTasksByStatus("todo").length}
                       </Badge>
                     </div>
@@ -568,7 +585,7 @@ export default function KanbanBoard() {
                       <span className="text-sm text-muted-foreground">
                         Em andamento
                       </span>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300">
                         {getTasksByStatus("in-progress").length}
                       </Badge>
                     </div>
@@ -576,7 +593,7 @@ export default function KanbanBoard() {
                       <span className="text-sm text-muted-foreground">
                         Feito
                       </span>
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300">
                         {getTasksByStatus("Feito").length}
                       </Badge>
                     </div>
@@ -669,55 +686,98 @@ export default function KanbanBoard() {
               </CardContent>
             </Card>
           </div>
-          <div className="flex-1">
-            <DndContext
-              sensors={sensors}
-              onDragStart={handleDragStart}
-              onDragEnd={handleDragEnd}
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {columns.map((column) => (
-                  <KanbanColumn
-                    key={column.id}
-                    title={column.title}
-                    status={column.status}
-                    tasks={getTasksByStatus(column.status)}
-                    tagColors={tagColors}
-                  />
-                ))}
-              </div>
+          <div className="flex-1 flex flex-col gap-4">
+            <div className="flex items-center justify-end">
+              <ProjectSelector
+                projects={projects}
+                currentProjectId={currentProjectId || ""}
+                onProjectChange={(projectId) => {
+                  setCurrentProjectId(projectId);
+                  setSelectedTags([]);
+                }}
+              />
 
-              <DragOverlay>
-                {activeTask ? (
-                  <Card className="w-80 opacity-95 rotate-2 shadow-2xl border-2 border-primary/20 bg-card/95 backdrop-blur-sm">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <h3 className="font-medium text-sm leading-tight">
-                          {activeTask.title}
-                        </h3>
-                      </div>
-                      {activeTask.tag && (
-                        <Badge
-                          variant="secondary"
-                          className={`w-fit text-xs ${
-                            tagColors[activeTask.tag]
-                          }`}
-                        >
-                          {activeTask.tag}
-                        </Badge>
-                      )}
-                    </CardHeader>
-                    {activeTask.description && (
-                      <CardContent className="pt-0">
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {activeTask.description}
-                        </p>
-                      </CardContent>
+              {/* Filtro de Tags */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="relative">
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filtro
+                    {selectedTags.length > 0 && (
+                      <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">
+                        {selectedTags.length}
+                      </span>
                     )}
-                  </Card>
-                ) : null}
-              </DragOverlay>
-            </DndContext>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Filtrar por Tag</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {Object.keys(tagColors).map((tag) => (
+                    <DropdownMenuCheckboxItem
+                      key={tag}
+                      checked={selectedTags.includes(tag as TaskTag)}
+                      onCheckedChange={(checked) =>
+                        handleTagFilterChange(tag as TaskTag, checked)
+                      }
+                    >
+                      {tag}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="flex-1">
+              <DndContext
+                sensors={sensors}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {columns.map((column) => (
+                    <KanbanColumn
+                      key={column.id}
+                      title={column.title}
+                      status={column.status}
+                      tasks={getTasksByStatus(column.status)}
+                      tagColors={tagColors}
+                    />
+                  ))}
+                </div>
+
+                <DragOverlay>
+                  {activeTask ? (
+                    <Card className="w-80 opacity-95 rotate-2 shadow-2xl border-2 border-primary/20 bg-card/95 backdrop-blur-sm">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-medium text-sm leading-tight">
+                            {activeTask.title}
+                          </h3>
+                        </div>
+                        {activeTask.tag && (
+                          <Badge
+                            variant="secondary"
+                            className={`w-fit text-xs ${
+                              tagColors[activeTask.tag]
+                            }`}
+                          >
+                            {activeTask.tag}
+                          </Badge>
+                        )}
+                      </CardHeader>
+                      {activeTask.description && (
+                        <CardContent className="pt-0">
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {activeTask.description}
+                          </p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
+            </div>
           </div>
         </div>
       </main>

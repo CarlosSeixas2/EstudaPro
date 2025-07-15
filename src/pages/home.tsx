@@ -266,7 +266,7 @@ export default function Home() {
     "Comece com um passo de cada vez.";
 
   return (
-    <div className="flex flex-1 flex-col gap-6 lg:gap-8">
+    <div className="p-4 md:p-4 flex flex-1 flex-col gap-6 lg:gap-8">
       <header>
         <h1 className="text-3xl font-bold tracking-tight">
           Olá, {data.user.name}! 👋

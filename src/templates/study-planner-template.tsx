@@ -21,7 +21,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 import type { Schedule, ScheduledItem, Subject } from "@/types/types";
 import { DeleteZone } from "@/components/molecules/delete-zone";
 import { DayColumn } from "@/components/organisms/schedule/day-column";
@@ -250,7 +249,7 @@ export function StudyPlannerTemplate({
       onDragEnd={handleDragEnd}
       collisionDetection={closestCorners}
     >
-      <div className="p-4 md:p-6 lg:p-8 space-y-8">
+      <div className="p-4 md:p-4 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
@@ -266,7 +265,6 @@ export function StudyPlannerTemplate({
               variant="destructive"
               onClick={() => setIsClearDialogOpen(true)}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
               Limpar Cronograma
             </Button>
           </div>

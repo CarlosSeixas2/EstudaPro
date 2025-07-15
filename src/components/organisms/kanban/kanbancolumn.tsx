@@ -6,6 +6,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TaskCard } from "./taskcard";
 import type { Task, TaskStatus, TaskTag } from "@/pages/tasks";
+import { cn } from "@/lib/utils";
+import { CheckCircle2, Zap, ListTodo } from "lucide-react"; // 1. Ícones importados
 
 interface KanbanColumnProps {
   title: string;
@@ -13,6 +15,19 @@ interface KanbanColumnProps {
   tasks: Task[];
   tagColors: Record<TaskTag, string>;
 }
+
+const statusColors: Record<TaskStatus, string> = {
+  todo: "bg-red-500/5 dark:bg-red-900/10 border-red-500/10",
+  "in-progress": "bg-yellow-500/5 dark:bg-yellow-900/10 border-yellow-500/10",
+  Feito: "bg-green-500/5 dark:bg-green-900/10 border-green-500/10",
+};
+
+// 2. Mapeamento do status para o componente do ícone
+const statusIcons: Record<TaskStatus, React.ElementType> = {
+  todo: ListTodo,
+  "in-progress": Zap,
+  Feito: CheckCircle2,
+};
 
 export function KanbanColumn({
   title,
@@ -24,17 +39,26 @@ export function KanbanColumn({
     id: status,
   });
 
+  // 3. Seleciona o ícone correto com base no status
+  const Icon = statusIcons[status];
+
   return (
     <Card
-      className={`transition-all duration-200 ${
+      className={cn(
+        "transition-all duration-200",
+        statusColors[status],
         isOver
-          ? "ring-2 ring-primary ring-opacity-50 bg-primary/5 scale-[1.02] shadow-lg border-primary/20"
-          : "hover:shadow-md border-border"
-      }`}
+          ? "ring-2 ring-primary ring-opacity-50 scale-[1.02] shadow-lg"
+          : "hover:shadow-md"
+      )}
     >
       <CardHeader className="pb-3">
+        {/* 4. Adiciona o ícone ao título da coluna */}
         <CardTitle className="flex items-center justify-between text-sm font-medium">
-          {title}
+          <div className="flex items-center gap-2">
+            <Icon className="h-4 w-4" />
+            <span>{title}</span>
+          </div>
           <span
             className={`rounded-full px-2 py-1 text-xs transition-all duration-200 ${
               isOver
@@ -49,8 +73,8 @@ export function KanbanColumn({
       <CardContent>
         <div
           ref={setNodeRef}
-          className={`space-y-3 min-h-[200px] transition-all duration-200 ${
-            isOver ? "bg-primary/5 rounded-lg p-2" : ""
+          className={`space-y-3 min-h-[200px] transition-all duration-200 rounded-lg ${
+            isOver ? "bg-primary/5 p-2" : ""
           }`}
         >
           <SortableContext
