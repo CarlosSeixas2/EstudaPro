@@ -33,3 +33,17 @@ export const projectColors = [
   "bg-gradient-to-br from-pink-500 to-pink-600",
   "bg-gradient-to-br from-teal-500 to-teal-600",
 ];
+
+export interface Subject {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface ScheduledItem extends Subject {
+  uniqueId: string;
+}
+
+export interface Schedule {
+  [day: string]: ScheduledItem[];
+}

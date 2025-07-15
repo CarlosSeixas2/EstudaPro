@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Plus, BookOpen, Trash2, Edit, GripVertical } from "lucide-react";
+import { Plus, BookOpen, Trash2, Edit, GripVertical } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -47,30 +47,16 @@ import {
 } from "@/components/ui/popover";
 import { HexColorPicker } from "react-colorful";
 import { cn } from "@/lib/utils";
+import type { Schedule, ScheduledItem, Subject } from "@/types/types";
 
-interface Subject {
-  id: string;
-  name: string;
-  color: string;
-}
-
-interface ScheduledItem extends Subject {
-  uniqueId: string;
-}
-
-interface Schedule {
-  [day: string]: ScheduledItem[];
-}
-
+// Materias iniciais
 const initialSubjects: Subject[] = [
   { id: "math", name: "Matemática", color: "#3b82f6" },
   { id: "bio", name: "Biologia", color: "#22c55e" },
   { id: "hist", name: "História", color: "#f97316" },
-  { id: "phys", name: "Física", color: "#8b5cf6" },
-  { id: "chem", name: "Química", color: "#ec4899" },
-  { id: "writ", name: "Redação", color: "#f43f5e" },
 ];
 
+// Dias da semana
 const daysOfWeek = [
   "Domingo",
   "Segunda",
@@ -81,8 +67,7 @@ const daysOfWeek = [
   "Sábado",
 ];
 
-// --- COMPONENTES VISUAIS ---
-
+// Botões de ação
 const LibrarySubject: React.FC<{
   subject: Subject;
   onEdit: () => void;
@@ -138,11 +123,8 @@ const LibrarySubject: React.FC<{
   );
 };
 
-const SortableScheduledItem: React.FC<{
-  item: ScheduledItem;
-  onRemove: () => void;
-  onEdit: () => void;
-}> = ({ item, onRemove, onEdit }) => {
+// Card Item Arrastável
+const SortableScheduledItem: React.FC<{ item: ScheduledItem }> = ({ item }) => {
   const {
     attributes,
     listeners,
@@ -162,58 +144,33 @@ const SortableScheduledItem: React.FC<{
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group/item relative flex items-center gap-3 p-2.5 rounded-lg bg-card border shadow-sm touch-none",
+        "flex items-center gap-3 p-2 rounded-lg bg-card border shadow-sm touch-none",
         isDragging && "opacity-60"
       )}
     >
       <div
-        className="w-2 h-8 rounded-full"
+        className="w-2 h-8 rounded-full flex-shrink-0"
         style={{ backgroundColor: item.color }}
       />
-      <span className="font-semibold text-sm flex-1">{item.name}</span>
-      <div className="flex items-center">
-        <div className="absolute inset-y-0 right-10 flex items-center pr-2 gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-destructive hover:text-destructive"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove();
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-        <div
-          {...listeners}
-          {...attributes}
-          className="p-2 cursor-grab active:cursor-grabbing"
-        >
-          <GripVertical className="h-5 w-5 text-muted-foreground" />
-        </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-sm break-words">{item.name}</p>
+      </div>
+      <div
+        {...listeners}
+        {...attributes}
+        className="p-2 cursor-grab active:cursor-grabbing"
+      >
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
       </div>
     </div>
   );
 };
 
-const DayColumn: React.FC<{
-  day: string;
-  items: ScheduledItem[];
-  onEdit: (subject: Subject) => void;
-  onRemove: (uniqueId: string) => void;
-}> = ({ day, items, onEdit, onRemove }) => {
+// Coluna dia semana
+const DayColumn: React.FC<{ day: string; items: ScheduledItem[] }> = ({
+  day,
+  items,
+}) => {
   const { setNodeRef, isOver } = useDroppable({ id: day });
 
   return (
@@ -233,12 +190,7 @@ const DayColumn: React.FC<{
           strategy={verticalListSortingStrategy}
         >
           {items.map((item) => (
-            <SortableScheduledItem
-              key={item.uniqueId}
-              item={item}
-              onEdit={() => onEdit(item)}
-              onRemove={() => onRemove(item.uniqueId)}
-            />
+            <SortableScheduledItem key={item.uniqueId} item={item} />
           ))}
         </SortableContext>
         {items.length === 0 && (
@@ -251,7 +203,23 @@ const DayColumn: React.FC<{
   );
 };
 
-// --- COMPONENTE PRINCIPAL ---
+const DeleteZone = () => {
+  const { setNodeRef, isOver } = useDroppable({ id: "delete-zone" });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "flex items-center justify-center gap-2 p-2 rounded-lg border-2 border-dashed border-destructive/50 text-destructive/80 transition-all",
+        isOver &&
+          "bg-destructive/10 border-solid scale-105 text-destructive font-bold"
+      )}
+    >
+      <Trash2 className="h-4 w-4" />
+      <span>Arraste aqui para remover</span>
+    </div>
+  );
+};
 
 export default function StudyPlannerPage() {
   const [subjects, setSubjects] = useState<Subject[]>(() => {
@@ -299,20 +267,13 @@ export default function StudyPlannerPage() {
     localStorage.setItem("studyPlannerSchedule_v2", JSON.stringify(schedule));
   }, [schedule]);
 
-  // NOVO: Função auxiliar para encontrar o container (dia da semana) de um item.
   const findContainer = (id: string | number) => {
-    if (id.toString().startsWith("lib-")) {
-      return "library";
-    }
+    if (id.toString().startsWith("lib-")) return "library";
+    if (id === "delete-zone") return "delete-zone";
     for (const day of daysOfWeek) {
-      if (schedule[day].some((item) => item.uniqueId === id)) {
-        return day;
-      }
+      if (schedule[day].some((item) => item.uniqueId === id)) return day;
     }
-    // Se o ID for o nome de um dia (quando soltamos em uma coluna vazia)
-    if (daysOfWeek.includes(id.toString())) {
-      return id.toString();
-    }
+    if (daysOfWeek.includes(id.toString())) return id.toString();
     return null;
   };
 
@@ -322,7 +283,6 @@ export default function StudyPlannerPage() {
     setActiveItem(item);
   };
 
-  // NOVO: Lógica de Drag and Drop completamente reescrita
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveItem(null);
@@ -332,14 +292,21 @@ export default function StudyPlannerPage() {
     const activeId = active.id;
     const overId = over.id;
 
+    if (overId === "delete-zone") {
+      if (!active.data.current?.fromLibrary) {
+        handleRemoveFromSchedule(activeId as string);
+      }
+      return;
+    }
+
     if (activeId === overId) return;
 
     const activeContainer = findContainer(activeId);
     const overContainer = findContainer(overId);
 
-    if (!activeContainer || !overContainer) return;
+    if (!activeContainer || !overContainer || overContainer === "delete-zone")
+      return;
 
-    // Caso 1: Reordenando itens dentro do mesmo dia
     if (activeContainer === overContainer && activeContainer !== "library") {
       setSchedule((prev) => {
         const newSchedule = { ...prev };
@@ -352,9 +319,7 @@ export default function StudyPlannerPage() {
         }
         return newSchedule;
       });
-    }
-    // Caso 2: Movendo itens entre containers diferentes (dia -> dia, ou biblioteca -> dia)
-    else if (activeContainer !== overContainer) {
+    } else if (activeContainer !== overContainer) {
       setSchedule((prev) => {
         const newSchedule = { ...prev };
         const sourceItems =
@@ -363,28 +328,24 @@ export default function StudyPlannerPage() {
 
         let draggedItem: ScheduledItem;
 
-        // Se vem da biblioteca
         if (active.data.current?.fromLibrary) {
           const subject = active.data.current.subject as Subject;
           draggedItem = { ...subject, uniqueId: `item-${Date.now()}` };
         } else {
-          // Se vem de outro dia
           const itemIndex = sourceItems.findIndex(
             (i) => i.uniqueId === activeId
           );
-          if (itemIndex === -1) return prev; // item não encontrado, abortar
+          if (itemIndex === -1) return prev;
           draggedItem = sourceItems[itemIndex];
-          // Remover do container de origem
           newSchedule[activeContainer] = sourceItems.filter(
             (i) => i.uniqueId !== activeId
           );
         }
 
-        // Adicionar ao container de destino
         const overIndex = destinationItems.findIndex(
           (i) => i.uniqueId === overId
         );
-        const newIndex = overIndex !== -1 ? overIndex : destinationItems.length; // se soltar na coluna, insere no fim
+        const newIndex = overIndex !== -1 ? overIndex : destinationItems.length;
 
         newSchedule[overContainer] = [
           ...destinationItems.slice(0, newIndex),
@@ -398,7 +359,6 @@ export default function StudyPlannerPage() {
   };
 
   const handleRemoveFromSchedule = (uniqueId: string) => {
-    // CORREÇÃO: Lógica de exclusão garantida.
     setSchedule((prev) => {
       const newSchedule = { ...prev };
       for (const day in newSchedule) {
@@ -410,9 +370,7 @@ export default function StudyPlannerPage() {
     });
   };
 
-  const handleClearSchedule = () => {
-    setIsClearDialogOpen(true);
-  };
+  const handleClearSchedule = () => setIsClearDialogOpen(true);
 
   const confirmClearSchedule = () => {
     const clearedSchedule: Schedule = {};
@@ -445,11 +403,7 @@ export default function StudyPlannerPage() {
         return newSchedule;
       });
     } else {
-      const newSubject: Subject = {
-        id: `subject-${Date.now()}`,
-        name,
-        color,
-      };
+      const newSubject: Subject = { id: `subject-${Date.now()}`, name, color };
       setSubjects([...subjects, newSubject]);
     }
   };
@@ -488,25 +442,21 @@ export default function StudyPlannerPage() {
               Arraste as matérias para organizar sua semana.
             </p>
           </div>
-          <Button variant="destructive" onClick={handleClearSchedule}>
-            <Trash2 className="w-4 h-4 mr-2" />
-            Limpar Cronograma
-          </Button>
+          {/* NOVO: Header com lixeira e botão de limpar */}
+          <div className="flex items-center gap-4">
+            <DeleteZone />
+            <Button variant="destructive" onClick={handleClearSchedule}>
+              <Trash2 className="w-4 h-4 mr-2" />
+              Limpar Cronograma
+            </Button>
+          </div>
         </header>
 
-        {/* // LAYOUT: Estrutura principal alterada para flex-col */}
         <main className="flex flex-col gap-8">
-          {/* // LAYOUT: Cronograma vem primeiro */}
           <div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
               {daysOfWeek.map((day) => (
-                <DayColumn
-                  key={day}
-                  day={day}
-                  items={schedule[day] || []}
-                  onEdit={handleOpenDialog}
-                  onRemove={handleRemoveFromSchedule}
-                />
+                <DayColumn key={day} day={day} items={schedule[day] || []} />
               ))}
             </div>
           </div>
@@ -584,6 +534,7 @@ export default function StudyPlannerPage() {
   );
 }
 
+// O componente SubjectDialog permanece o mesmo
 const SubjectDialog: React.FC<{
   isOpen: boolean;
   onClose: () => void;

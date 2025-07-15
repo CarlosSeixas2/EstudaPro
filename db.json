@@ -55,11 +55,11 @@
   ],
   "notes": [
     {
-      "id": "80e3",
       "title": "Figma",
-      "content": "Montar Design para o <font color=\"#eab308\">Sintese Play</font>",
+      "content": "<span style=\"font-size: 32px;\">Montar Design para o <font color=\"#eab308\">Sintese Play</font></span>",
       "projectId": "2",
-      "createdAt": "2025-07-11T20:09:10.923Z"
+      "createdAt": "2025-07-14T14:45:04.741Z",
+      "id": "80e3"
     },
     {
       "title": "Sintase Lab",
@@ -74,7 +74,7 @@
       "id": "1",
       "title": "Design landing page mockup",
       "description": "Create wireframes and high-fidelity mockups for the new landing page",
-      "status": "todo",
+      "status": "in-progress",
       "tag": "Design",
       "createdAt": "2024-01-15T00:00:00.000Z",
       "projectId": "1"
@@ -92,7 +92,7 @@
       "id": "3",
       "title": "Implement dark mode",
       "description": "Add theme toggle functionality across the application",
-      "status": "in-progress",
+      "status": "Feito",
       "tag": "Feature",
       "createdAt": "2024-01-13T00:00:00.000Z",
       "projectId": "1"
@@ -101,7 +101,7 @@
       "id": "4",
       "title": "Setup React Native project",
       "description": "Initialize the mobile app project structure",
-      "status": "todo",
+      "status": "in-progress",
       "tag": "Feature",
       "createdAt": "2024-01-12T00:00:00.000Z",
       "projectId": "2"
