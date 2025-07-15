@@ -74,7 +74,7 @@
       "id": "1",
       "title": "Design landing page mockup",
       "description": "Create wireframes and high-fidelity mockups for the new landing page",
-      "status": "in-progress",
+      "status": "todo",
       "tag": "Design",
       "createdAt": "2024-01-15T00:00:00.000Z",
       "projectId": "1"
@@ -83,7 +83,7 @@
       "id": "2",
       "title": "Fix authentication bug",
       "description": "Users are unable to log in with Google OAuth",
-      "status": "todo",
+      "status": "in-progress",
       "tag": "Bug",
       "createdAt": "2024-01-14T00:00:00.000Z",
       "projectId": "1"

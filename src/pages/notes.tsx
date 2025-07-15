@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ProjectsPage } from "@/components/pages/projectspage";
+import { ProjectsPage } from "@/pages/projectspage";
 import type { Project } from "@/types/types";
 import ProjectNotesPage from "./projectnotespage";
 

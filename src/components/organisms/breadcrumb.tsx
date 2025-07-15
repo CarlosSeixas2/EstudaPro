@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
-import { useBreadcrumb } from "@/contexts/breadcrumbcontext";
+import { useBreadcrumb } from "@/contexts/breadcrumb-context";
 
 const breadcrumbNameMap: { [key: string]: string } = {
   schedule: "Cronograma",

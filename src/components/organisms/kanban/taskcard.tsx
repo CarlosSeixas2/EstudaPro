@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Task, TaskTag } from "@/components/pages/tasks";
+import type { Task, TaskTag } from "@/pages/tasks";
 
 interface TaskCardProps {
   task: Task;

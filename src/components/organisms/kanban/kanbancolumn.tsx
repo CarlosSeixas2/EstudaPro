@@ -5,7 +5,7 @@ import {
 } from "@dnd-kit/sortable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TaskCard } from "./taskcard";
-import type { Task, TaskStatus, TaskTag } from "@/components/pages/tasks";
+import type { Task, TaskStatus, TaskTag } from "@/pages/tasks";
 
 interface KanbanColumnProps {
   title: string;

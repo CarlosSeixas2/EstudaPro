@@ -5,9 +5,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import AppSidebar from "../organisms/sidebar";
-import AppBreadcrumb from "../organisms/breadcrumb";
-import { ModeToggle } from "../mode-toggle";
+import AppSidebar from "@/components/organisms/sidebar";
+import AppBreadcrumb from "@/components/organisms/breadcrumb";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function MainLayout() {
   return (
